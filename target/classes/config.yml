@@ -1,0 +1,66 @@
+# Set to false to completely disable the plugin functionality
+plugin-enabled: true
+
+max-hearts: 20
+min-hearts: 1
+
+custom-heart-name: "§c§l❤ Extra Heart"
+custom-heart-lore:
+  - "&7Right-click to consume"
+  - "&7Gives you +1 heart"
+
+lose-heart-on-death: true
+gain-heart-on-kill: true
+drop-heart-on-death: true
+heart-drop-chance: 100
+use-half-hearts: false
+drop-to-floor: true
+
+messages:
+  prefix: "&6[Lifesteal] &r"
+  heart-gained: "&a+1 Heart! You now have {hearts} hearts."
+  heart-lost: "&c-1 Heart! You now have {hearts} hearts."
+  heart-dropped: "&6A heart dropped from your death!"
+  hearts-set: "&aSet {player}'s hearts to {hearts}"
+  hearts-added: "&aAdded {amount} hearts to {player} ({old} → {new})"
+  hearts-removed: "&aRemoved {amount} hearts from {player} ({old} → {new})"
+  hearts-withdrawn: "&aWithdrew {amount} hearts! You now have {hearts} hearts."
+  hearts-deposited: "&aDeposited {amount} hearts! You now have {hearts} hearts."
+  no-permission: "&cYou don't have permission to use this command!"
+  player-not-found: "&cPlayer not found: {player}"
+  invalid-amount: "&cInvalid amount: {amount}"
+  amount-too-high: "&cAmount must be between {min} and {max}"
+  amount-positive: "&cAmount must be positive!"
+  exceed-max: "&cYou can't deposit that many hearts! You would exceed the maximum of {max} hearts."
+  below-min: "&cYou can't withdraw that many hearts! You need at least {min} hearts."
+
+worlds:
+  enabled-worlds: []
+  disabled-worlds: []
+
+pvp:
+  enabled: true
+  require-same-world: true
+  require-same-gamemode: false
+
+# Maybe i will add this later
+economy:
+  enabled: false
+  heart-price: 1000.0
+  sell-price: 500.0
+
+# database for mccc beacuse he' loves it
+database:
+  type: "file"
+  mysql:
+    host: ""
+    port: 3306
+    database: ""
+    username: ""
+    password: ""
+    use-ssl: false
+
+advanced:
+  save-interval: 300
+  backup-on-reload: true
+  debug-mode: false

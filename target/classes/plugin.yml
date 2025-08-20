@@ -1,0 +1,121 @@
+name: Lifesteal-Deluxe
+version: '2.25'
+main: Endxel.LSD
+api-version: '1.21'
+load: STARTUP
+authors: [ Mrwak ]
+description: Lifesteal-deluxe COMPLETE REWORK by MrWak created for play.endxel.com
+website: https://endxel.com
+
+commands:
+  lifesteal:
+    description: Main Lifesteal Deluxe command
+    usage: /<command> [help|info|reload]
+    aliases: [ls, lsd]
+    permission: lifesteal.use
+  hearts:
+    description: Check your or another player's hearts
+    usage: /<command> [player]
+    aliases: [h, heart]
+    permission: lifesteal.hearts
+  withdraw:
+    description: Withdraw hearts from your health
+    usage: /<command> <amount>
+    aliases: [w]
+    permission: lifesteal.withdraw
+  deposit:
+    description: Deposit hearts to your health
+    usage: /<command> <amount>
+    aliases: [d]
+    permission: lifesteal.deposit
+  sethearts:
+    description: Set a player's heart count
+    usage: /<command> <player> <amount>
+    aliases: [sh]
+    permission: lifesteal.admin
+  addhearts:
+    description: Add hearts to a player
+    usage: /<command> <player> <amount>
+    aliases: [ah]
+    permission: lifesteal.admin
+  removehearts:
+    description: Remove hearts from a player
+    usage: /<command> <player> <amount>
+    aliases: [rh]
+    permission: lifesteal.admin
+  payhearts:
+    description: Send hearts to another player
+    usage: /<command> <player> <amount>
+    aliases: [ph]
+    permission: lifesteal.payhearts
+
+permissions:
+  lifesteal.*:
+    description: Gives access to all Lifesteal Deluxe commands
+    children:
+      lifesteal.use: true
+      lifesteal.hearts: true
+      lifesteal.hearts.others: true
+      lifesteal.withdraw: true
+      lifesteal.deposit: true
+      lifesteal.admin: true
+      lifesteal.info: true
+  lifesteal.use:
+    description: Allows use of basic lifesteal commands
+    default: true
+  lifesteal.hearts:
+    description: Allows checking own hearts
+    default: true
+  lifesteal.hearts.others:
+    description: Allows checking other players' hearts
+    default: op
+  lifesteal.withdraw:
+    description: Allows withdrawing hearts
+    default: true
+  lifesteal.deposit:
+    description: Allows depositing hearts
+    default: true
+  lifesteal.admin:
+    description: Gives access to admin commands
+    default: op
+  lifesteal.info:
+    description: Allows viewing plugin information
+    default: true
+  lifesteal.payhearts:
+    description: Allows sending hearts to other players
+    default: true
+  lifesteal.withdraw:
+    description: Allows withdrawing hearts into items
+    default: true
+  lifesteal.addhearts:
+    description: Allows adding hearts to players
+    default: op
+  lifesteal.removehearts:
+    description: Allows removing hearts from players
+    default: op
+  lifesteal.setlimit:
+    description: Allows setting player heart limits
+    default: op
+  lifesteal.reset:
+    description: Allows resetting player hearts
+    default: op
+  lifesteal.setheartname:
+    description: Allows setting custom heart item name
+    default: op
+  lifesteal.setheartlore:
+    description: Allows setting custom heart item lore
+    default: op
+  lifesteal.gethearts:
+    description: Allows viewing heart balances
+    default: true
+  lifesteal.top:
+    description: Allows viewing top heart players
+    default: true
+  lifesteal.history:
+    description: Allows viewing heart transaction history
+    default: op
+  lifesteal.reload:
+    description: Allows reloading plugin configuration
+    default: op
+
+softdepend: [PlaceholderAPI]
