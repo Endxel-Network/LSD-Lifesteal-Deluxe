@@ -1,22 +1,6 @@
 # Lifesteal Deluxe
 
-A comprehensive Lifesteal plugin for Spigot servers with advanced features, commands, and PlaceholderAPI support.
-
-## Features
-
-- **Heart Management System**: Players can gain/lose hearts through PvP
-- **Configurable Limits**: Set minimum and maximum heart limits per player
-- **Admin Commands**: Full control over player hearts with bulk operations
-- **Player Trading**: Send hearts to other players (online or offline)
-- **Heart Items**: Physical heart items that can be consumed
-- **Custom Heart Items**: Customizable heart item names and lore
-- **Bulk Operations**: Use * for all online players, ** for all players ever
-- **PlaceholderAPI Support**: Rich placeholders for scoreboards and chat
-- **Permission System**: Granular permission control with LSD permissions
-- **World Restrictions**: Control which worlds the plugin works in
-- **Economy Integration**: Optional Vault integration for heart trading
-- **Top Players**: View leaderboards of players with most hearts
-- **Transaction History**: Track heart transactions (placeholder for future)
+genreated by chatgpt beacuse yeah
 
 ## Commands
 
