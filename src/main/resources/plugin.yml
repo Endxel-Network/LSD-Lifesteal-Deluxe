@@ -1,5 +1,5 @@
 name: Lifesteal-Deluxe
-version: '2.25'
+version: '2.6'
 main: Endxel.LSD
 api-version: '1.21'
 load: STARTUP
@@ -23,15 +23,15 @@ commands:
     usage: /<command> <amount>
     aliases: [w]
     permission: lifesteal.withdraw
-  deposit:
-    description: Deposit hearts to your health
-    usage: /<command> <amount>
-    aliases: [d]
-    permission: lifesteal.deposit
   sethearts:
     description: Set a player's heart count
     usage: /<command> <player> <amount>
     aliases: [sh]
+    permission: lifesteal.admin
+  setmax:
+    description: Set global max hearts limit
+    usage: /<command> <amount>
+    aliases: [sm]
     permission: lifesteal.admin
   addhearts:
     description: Add hearts to a player
@@ -57,7 +57,6 @@ permissions:
       lifesteal.hearts: true
       lifesteal.hearts.others: true
       lifesteal.withdraw: true
-      lifesteal.deposit: true
       lifesteal.admin: true
       lifesteal.info: true
   lifesteal.use:
@@ -72,9 +71,6 @@ permissions:
   lifesteal.withdraw:
     description: Allows withdrawing hearts
     default: true
-  lifesteal.deposit:
-    description: Allows depositing hearts
-    default: true
   lifesteal.admin:
     description: Gives access to admin commands
     default: op
@@ -84,18 +80,13 @@ permissions:
   lifesteal.payhearts:
     description: Allows sending hearts to other players
     default: true
-  lifesteal.withdraw:
-    description: Allows withdrawing hearts into items
-    default: true
   lifesteal.addhearts:
     description: Allows adding hearts to players
     default: op
   lifesteal.removehearts:
     description: Allows removing hearts from players
     default: op
-  lifesteal.setlimit:
-    description: Allows setting player heart limits
-    default: op
+  # Removed setlimit permission - use setmaxhearts instead
   lifesteal.reset:
     description: Allows resetting player hearts
     default: op

@@ -1,0 +1,148 @@
+# 🫀 Lifesteal Deluxe v2.6 - Major Update Release Notes
+
+## ✨ New Features
+
+### 🔧 Plugin Enable/Disable System
+- **NEW**: `/lifesteal enable` - Enable the entire plugin functionality
+- **NEW**: `/lifesteal disable` - Disable the entire plugin functionality
+- **NEW**: `plugin-enabled` config option to control plugin state
+- Plugin can now be toggled on/off without restarting the server
+
+### 🎯 Dynamic Max Hearts Configuration
+- **NEW**: `/lifesteal setmaxhearts <amount>` - Set global max hearts limit in-game
+- **NEW**: Real-time max hearts adjustment without config editing
+- **NEW**: Automatic health updates for all online players
+- **NEW**: Config persistence and server-wide notifications
+
+### 💖 Enhanced Heart Dropping System
+- **IMPROVED**: Smart heart dropping when players are at max health
+- **NEW**: Hearts automatically given to killers if victim is at max health
+- **NEW**: Floor dropping when killer's inventory is full
+- **NEW**: `drop-to-floor` config option to control behavior
+
+### 🎨 Configurable Heart Item System
+- **NEW**: Multi-line lore support with `custom-heart-lore` list
+- **NEW**: `use-half-hearts` config option (default: false for full hearts)
+- **NEW**: Dynamic heart item customization in-game
+
+## 🔧 Technical Improvements
+
+### 🚫 Comment Cleanup
+- **REMOVED**: All code comments throughout the project
+- **CLEANER**: Streamlined, professional codebase
+
+### 🎛️ Enhanced Configuration
+- **NEW**: Comprehensive messages section for all plugin text
+- **NEW**: World-specific enable/disable options
+- **NEW**: PvP configuration options
+- **NEW**: Advanced settings for save intervals and debugging
+
+### 🔐 Permission System Overhaul
+- **STANDARDIZED**: All permissions now use `lifesteal.*` format
+- **CONSISTENT**: Unified permission naming across all commands
+- **SECURE**: Proper permission checks for all administrative functions
+
+## 🐛 Bug Fixes
+
+### 🚨 Critical Issues Resolved
+- **FIXED**: Commands stopping working after server restart
+- **FIXED**: "Usages only" command errors
+- **FIXED**: Plugin functionality breaking on reload
+
+### ❤️ Heart Management Fixes
+- **FIXED**: Heart dropping logic for max health players
+- **FIXED**: Inventory space handling for heart items
+- **FIXED**: Health synchronization issues
+
+## 📋 Command Reference
+
+### 🆕 New Commands
+```bash
+/lifesteal enable          # Enable plugin functionality
+/lifesteal disable         # Disable plugin functionality
+/lifesteal setmaxhearts    # Set global max hearts limit
+```
+
+### 🔄 Updated Commands
+```bash
+/lifesteal help           # Enhanced help with new commands
+/lifesteal info           # Shows plugin status (enabled/disabled)
+/lifesteal lore           # Now supports multi-line lore
+```
+
+## ⚙️ Configuration Changes
+
+### 📝 New Config Options
+```yaml
+# Plugin Control
+plugin-enabled: true       # Master plugin toggle
+
+# Heart System
+use-half-hearts: false    # Display full hearts by default
+drop-to-floor: true       # Drop hearts on floor when needed
+
+# Enhanced Messages
+messages:
+  prefix: "&6[Lifesteal] &r"
+  heart-gained: "&a+1 Heart! You now have {hearts} hearts."
+  # ... and many more message options
+```
+
+## 🎮 Server Owner Benefits
+
+### 🚀 Dynamic Management
+- **No More Restarts**: Change max hearts, enable/disable features in-game
+- **Real-time Updates**: All changes apply immediately
+- **Config Persistence**: All in-game changes save automatically
+
+### 🎯 Better Control
+- **Plugin Toggle**: Enable/disable entire plugin without file editing
+- **Heart Limits**: Adjust server difficulty on the fly
+- **Customization**: Modify heart items without restarting
+
+### 📊 Enhanced Monitoring
+- **Plugin Status**: Clear indication of enabled/disabled state
+- **Debug Information**: Comprehensive plugin information
+- **Player Tracking**: Better heart management and statistics
+
+## 🔮 Future Ready
+
+### 🗄️ Database Support
+- **PREPARED**: MySQL database configuration ready
+- **SCALABLE**: Built for large server networks
+- **FLEXIBLE**: Easy switching between file and database storage
+
+### 💰 Economy Integration
+- **PREPARED**: Economy system framework in place
+- **CONFIGURABLE**: Heart buying/selling system ready
+- **EXTENSIBLE**: Easy to integrate with Vault
+
+## 📥 Installation & Migration
+
+### 🔄 From Previous Versions
+1. **Backup** your existing config and data files
+2. **Replace** the plugin JAR file
+3. **Start** the server - new config options will be added automatically
+4. **Configure** new options as needed
+
+### ⚠️ Important Notes
+- **Permissions**: Some permission names have changed to `lifesteal.*` format
+- **Config**: New options will be added automatically
+- **Data**: Player heart data will be preserved
+
+## 🎉 What's New Summary
+
+This major update transforms Lifesteal Deluxe from a basic plugin into a **professional, enterprise-grade lifesteal system** with:
+
+- **🔄 Dynamic Configuration** - Change everything in-game
+- **🎛️ Plugin Control** - Enable/disable at will
+- **💖 Smart Heart System** - Intelligent item management
+- **🔧 Professional Codebase** - Clean, maintainable code
+- **📱 Enhanced Commands** - Better user experience
+- **⚙️ Flexible Settings** - Extensive customization options
+
+---
+
+**🎯 Perfect for**: Server owners who want professional-grade lifesteal mechanics with full control and zero downtime!
+
+**🚀 Ready for**: Production servers, large networks, and serious gameplay environments!

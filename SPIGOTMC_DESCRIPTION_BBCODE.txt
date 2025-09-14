@@ -1,0 +1,282 @@
+[center][size=6][color=#FF6B6B]❤️ Lifesteal Deluxe v2.6 - Advanced Heart Economy System[/color][/size][/center]
+
+[center][b][size=4]Transform your server into a heart-based economy with this feature-rich, multi-language lifesteal plugin![/size][/b][/center]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🌟 What is Lifesteal Deluxe?[/color][/size][/center]
+
+Lifesteal Deluxe is the ultimate heart-based economy plugin that turns player health into a valuable, tradeable resource. Players can gain hearts by killing others, lose hearts when they die, and use hearts as currency throughout your server. With extensive customization options, multi-language support, and powerful admin tools, this plugin creates an engaging and competitive environment for your players.
+
+[hr]
+
+[center][size=5][color=#FFD93D]✨ Key Features[/color][/size][/center]
+
+[center][size=4][color=#4ECDC4]🎯 Core Heart System[/color][/size][/center]
+[list]
+[*][b]Heart Stealing[/b] - Players steal hearts when killing others
+[*][b]Heart Loss[/b] - Players lose hearts when they die
+[*][b]Heart Trading[/b] - Send hearts to other players with [code]/payhearts[/code]
+[*][b]Heart Withdrawal[/b] - Convert hearts into physical items
+[*][b]Heart Limits[/b] - Configurable min/max heart limits per player
+[/list]
+
+[center][size=4][color=#4ECDC4]🌍 Multi-Language Support[/color][/size][/center]
+[list]
+[*][b]9 Languages[/b] - English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Chinese
+[*][b]Dynamic Switching[/b] - Change language in-game without restart
+[*][b]Auto-Fallback[/b] - Falls back to English if translation missing
+[*][b]Easy Management[/b] - [code]/ls language[/code] commands for admins
+[/list]
+
+[center][size=4][color=#4ECDC4]🛡️ Advanced Ban System[/color][/size][/center]
+[list]
+[*][b]Server-Only Bans[/b] - Only affects the lifesteal server, not your entire network
+[*][b]Temporary Bans[/b] - Configurable ban duration (1d, 1w, 1m, etc.)
+[*][b]Persistent Kicking[/b] - Banned players get kicked on join until ban expires
+[*][b]Revive System[/b] - Admins can revive banned players with [code]/ls revive[/code]
+[/list]
+
+[center][size=4][color=#4ECDC4]🔧 Powerful Admin Tools[/color][/size][/center]
+[list]
+[*][b]Wildcard Commands[/b] - Use [code]*[/code] for all online players, [code]**[/code] for all players
+[*][b]Heart Management[/b] - Add, remove, set hearts for any player
+[*][b]Bulk Operations[/b] - Manage multiple players at once
+[*][b]Real-time Monitoring[/b] - Track heart transactions and player status
+[/list]
+
+[center][size=4][color=#4ECDC4]🎨 Customization Options[/color][/size][/center]
+[list]
+[*][b]Custom Heart Items[/b] - Fully customizable heart item name and lore
+[*][b]Configurable Aliases[/b] - Set custom command shortcuts
+[*][b]Color Code Support[/b] - Full [code]&[/code] color code support throughout
+[*][b]Flexible Permissions[/b] - Granular permission system
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]📋 Commands & Usage[/color][/size][/center]
+
+[center][size=4][color=#4ECDC4]Player Commands[/color][/size][/center]
+[code]
+/hearts [player]          - Check your or another player's hearts
+/withdraw <amount>        - Withdraw hearts as physical items
+/payhearts <player> <amount> - Send hearts to another player
+[/code]
+
+[center][size=4][color=#4ECDC4]Admin Commands[/color][/size][/center]
+[code]
+/ls sethearts <player> <amount> - Set player hearts (supports * and **)
+/ls addhearts <player> <amount> - Add hearts to player
+/ls removehearts <player> <amount> - Remove hearts from player
+/ls givehearts <player> <amount> - Give hearts to offline players
+/ls setmax <amount>       - Set global maximum hearts
+/ls revive <player>       - Revive banned players
+/ls language [set|list]   - Manage language settings
+/ls aliases [add|remove]  - Manage command aliases
+/ls reload               - Reload plugin configuration
+[/code]
+
+[center][size=4][color=#4ECDC4]Wildcard Support[/color][/size][/center]
+[list]
+[*][code]*[/code] = All online players
+[*][code]**[/code] = All players (online + offline)
+[/list]
+
+[b]Example:[/b] [code]/ls sethearts * 10[/code] - Sets all online players to 10 hearts
+
+[hr]
+
+[center][size=5][color=#FFD93D]🔐 Permissions[/color][/size][/center]
+
+[table]
+[tr][th]Permission[/th][th]Description[/th][th]Default[/th][/tr]
+[tr][td][code]lifesteal.*[/code][/td][td]All permissions[/td][td]op[/td][/tr]
+[tr][td][code]lifesteal.use[/code][/td][td]Basic commands[/td][td]true[/td][/tr]
+[tr][td][code]lifesteal.hearts[/code][/td][td]Check hearts[/td][td]true[/td][/tr]
+[tr][td][code]lifesteal.withdraw[/code][/td][td]Withdraw hearts[/td][td]true[/td][/tr]
+[tr][td][code]lifesteal.payhearts[/code][/td][td]Send hearts[/td][td]true[/td][/tr]
+[tr][td][code]lifesteal.admin[/code][/td][td]Admin commands[/td][td]op[/td][/tr]
+[tr][td][code]lifesteal.reload[/code][/td][td]Reload config[/td][td]op[/td][/tr]
+[/table]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🌐 PlaceholderAPI Support[/color][/size][/center]
+
+Use these placeholders with PlaceholderAPI-compatible plugins:
+
+[code]
+%lifesteal_hearts%           - Player's current hearts
+%lifesteal_max_hearts%       - Maximum hearts allowed
+%lifesteal_min_hearts%       - Minimum hearts allowed
+%lifesteal_hearts_bar%       - Visual hearts bar
+%lifesteal_hearts_percentage% - Hearts as percentage
+%lifesteal_hearts_remaining% - Hearts above minimum
+%lifesteal_hearts_above_min% - Hearts above minimum
+[/code]
+
+[b]Perfect for:[/b] Scoreboards, tab lists, holograms, and chat messages!
+
+[hr]
+
+[center][size=5][color=#FFD93D]⚙️ Configuration[/color][/size][/center]
+
+[center][size=4][color=#4ECDC4]Main Settings[/color][/size][/center]
+[code=yaml]
+# Language settings
+language: "en" # Available: en, es, fr, de, it, pt, ru, ja, zh
+
+# Heart limits
+max-hearts: 20
+min-hearts: 1
+
+# Heart behavior
+lose-heart-on-death: true
+gain-heart-on-kill: true
+
+# Ban system
+ban-system:
+  enabled: true
+  ban-duration: "1d"
+  prevent-join: true
+[/code]
+
+[center][size=4][color=#4ECDC4]Command Aliases[/color][/size][/center]
+[code=yaml]
+command-aliases:
+  lifesteal: ["ls", "lsd"]
+  hearts: ["h", "heart"]
+  withdraw: ["w"]
+  sethearts: ["sh"]
+  # ... and more
+[/code]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🚀 Installation[/color][/size][/center]
+
+[list=1]
+[*][b]Download[/b] the plugin JAR file
+[*][b]Place[/b] it in your server's [code]plugins[/code] folder
+[*][b]Restart[/b] your server
+[*][b]Configure[/b] settings in [code]config.yml[/code]
+[*][b]Set permissions[/b] for your players
+[*][b]Enjoy[/b] your new heart economy!
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🔄 API Integration[/color][/size][/center]
+
+Lifesteal Deluxe includes a comprehensive API for developers:
+
+[code=java]
+// Get the API
+LifestealAPI api = lifestealPlugin.getAPI();
+
+// Basic operations
+int hearts = api.getHearts(player);
+api.setHearts(player, 10);
+api.addHearts(player, 5);
+
+// Check settings
+boolean heartStealing = api.isHeartStealingEnabled();
+boolean isBanned = api.isPlayerBanned(player);
+[/code]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🌟 Why Choose Lifesteal Deluxe?[/color][/size][/center]
+
+[center][size=4][color=#4ECDC4]For Server Owners[/color][/size][/center]
+[list]
+[*]✅ [b]Easy Setup[/b] - Simple configuration and installation
+[*]✅ [b]Multi-Language[/b] - Support players from around the world
+[*]✅ [b]Flexible Permissions[/b] - Control who can do what
+[*]✅ [b]Network Safe[/b] - Only affects the lifesteal server
+[*]✅ [b]Regular Updates[/b] - Active development and support
+[/list]
+
+[center][size=4][color=#4ECDC4]For Players[/color][/size][/center]
+[list]
+[*]✅ [b]Engaging Gameplay[/b] - Adds risk and reward to PvP
+[*]✅ [b]Economic System[/b] - Hearts become valuable currency
+[*]✅ [b]Fair Competition[/b] - Balanced heart limits and rules
+[*]✅ [b]Clear Communication[/b] - Messages in their language
+[/list]
+
+[center][size=4][color=#4ECDC4]For Developers[/color][/size][/center]
+[list]
+[*]✅ [b]Clean API[/b] - Easy integration with other plugins
+[*]✅ [b]PlaceholderAPI[/b] - Works with popular display plugins
+[*]✅ [b]Extensible[/b] - Add custom features easily
+[*]✅ [b]Well Documented[/b] - Clear code and documentation
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]📈 Performance[/color][/size][/center]
+
+[list]
+[*][b]Optimized Code[/b] - Efficient heart calculations and storage
+[*][b]Memory Management[/b] - Smart caching and cleanup
+[*][b]Minimal Impact[/b] - Low server resource usage
+[*][b]Scalable[/b] - Works with any number of players
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🆘 Support & Updates[/color][/size][/center]
+
+[list]
+[*][b]GitHub Repository[/b] - Full source code and issue tracking
+[*][b]Regular Updates[/b] - New features and bug fixes
+[*][b]Community Support[/b] - Help from other server owners
+[*][b]Documentation[/b] - Comprehensive guides and examples
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]🎯 Perfect For[/color][/size][/center]
+
+[list]
+[*][b]PvP Servers[/b] - Add heart-based risk/reward
+[*][b]Economy Servers[/b] - Use hearts as currency
+[*][b]Survival Servers[/b] - Create unique gameplay mechanics
+[*][b]Network Servers[/b] - Server-specific heart system
+[*][b]Custom Servers[/b] - Flexible and configurable
+[/list]
+
+[hr]
+
+[center][size=5][color=#FFD93D]📝 Changelog v2.6[/color][/size][/center]
+
+[center][size=4][color=#4ECDC4]New Features[/color][/size][/center]
+[list]
+[*]🌍 Multi-language support (9 languages)
+[*]🔧 Configurable command aliases
+[*]🛡️ Advanced ban system with server-only kicks
+[*]⚡ Wildcard support for bulk operations
+[*]🔌 Simple API for external plugins
+[*]📊 Enhanced admin tools and monitoring
+[/list]
+
+[center][size=4][color=#4ECDC4]Improvements[/color][/size][/center]
+[list]
+[*]🎨 Better message system with placeholders
+[*]⚙️ More configuration options
+[*]🔐 Improved permission system
+[*]📱 Better tab completion
+[*]🐛 Bug fixes and optimizations
+[/list]
+
+[hr]
+
+[center][size=6][color=#FF6B6B]❤️ Run your server with love – with Lifesteal Deluxe! ❤️[/color][/size][/center]
+
+[center][b][size=4]Download now and transform your server into an engaging heart-based economy![/size][/b][/center]
+
+[hr]
+
+[center][i]Made with ❤️ for the Minecraft community[/i][/center]

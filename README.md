@@ -2,6 +2,8 @@
 
 A comprehensive Lifesteal plugin for Spigot servers with advanced features, commands, and PlaceholderAPI support.
 
+created by chatgpt beacuse what loser would spend 40y making a readme 😂😂😂😂😂😂
+
 ## Features
 
 - **Heart Management System**: Players can gain/lose hearts through PvP
@@ -182,7 +184,7 @@ mvn clean package
 
 - **Author**: MrWak
 - **Website**: https://endxel.com
-- **Version**: 2.25
+- **Version**: 2.6
 
 ## License
 
@@ -190,12 +192,18 @@ This plugin is created for play.endxel.com and follows the original Lifesteal De
 
 ## Changelog
 
-### Version 2.25
-- Complete rework of the plugin
-- Added PlaceholderAPI support
-- Improved command system
-- Better configuration options
-- Enhanced permission system
+### Version 2.6
+- 🌍 Multi-language support (9 languages)
+- 🔧 Configurable command aliases
+- 🛡️ Advanced ban system with server-only kicks
+- ⚡ Wildcard support for bulk operations
+- 🔌 Simple API for external plugins
+- 📊 Enhanced admin tools and monitoring
+- 🎨 Better message system with placeholders
+- ⚙️ More configuration options
+- 🔐 Improved permission system
+- 📱 Better tab completion
+- 🐛 Bug fixes and optimizations
 - Fixed various bugs and issues
 
 ---

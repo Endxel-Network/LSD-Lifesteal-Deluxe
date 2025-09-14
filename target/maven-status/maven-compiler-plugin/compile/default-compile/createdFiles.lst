@@ -1,0 +1,14 @@
+Endxel\LifestealAPI.class
+Endxel\HeartItemManager.class
+Endxel\PayHeartsCommand.class
+Endxel\HeartsCommand.class
+Endxel\HeartItemListener.class
+Endxel\AddHeartsCommand.class
+Endxel\LSD.class
+Endxel\WithdrawCommand.class
+Endxel\LifestealPlaceholder.class
+Endxel\LifestealCommand.class
+Endxel\SetHeartsCommand.class
+Endxel\LanguageManager.class
+Endxel\RemoveHeartsCommand.class
+Endxel\AliasManager.class

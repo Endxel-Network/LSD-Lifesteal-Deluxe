@@ -20,6 +20,12 @@ public class RemoveHeartsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Check if plugin is enabled
+        if (!plugin.isPluginEnabled()) {
+            sender.sendMessage("§cLifesteal Deluxe is currently disabled!");
+            return true;
+        }
+        
         if (!sender.hasPermission("lifesteal.admin")) {
             sender.sendMessage("§cYou don't have permission to use this command!");
             return true;

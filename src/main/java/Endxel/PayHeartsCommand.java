@@ -21,6 +21,12 @@ public class PayHeartsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Check if plugin is enabled
+        if (!plugin.isPluginEnabled()) {
+            sender.sendMessage("§cLifesteal Deluxe is currently disabled!");
+            return true;
+        }
+        
         if (!(sender instanceof Player)) {
             sender.sendMessage("§cThis command can only be used by players!");
             return true;

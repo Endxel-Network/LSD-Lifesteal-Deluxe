@@ -20,6 +20,12 @@ public class HeartsCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Check if plugin is enabled
+        if (!plugin.isPluginEnabled()) {
+            sender.sendMessage("§cLifesteal Deluxe is currently disabled!");
+            return true;
+        }
+        
         if (args.length == 0) {
 
             if (!(sender instanceof Player)) {

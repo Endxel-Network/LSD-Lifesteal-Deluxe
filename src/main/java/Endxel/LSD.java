@@ -3,6 +3,7 @@ package Endxel;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -12,6 +13,8 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.OfflinePlayer;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
@@ -31,28 +34,58 @@ public final class LSD extends JavaPlugin implements Listener {
     private String customHeartName;
     private List<String> customHeartLore;
     private Map<UUID, Integer> playerMaxLimits;
-    private boolean useHalfHearts;
+    // Removed half-heart system
     private boolean dropToFloor;
     private boolean pluginEnabled;
+    
+    // Ban system (LIFESTEAL SERVER ONLY)
+    private boolean banSystemEnabled;
+    private String banDuration;
+    private String banMessage;
+    private String warningMessage;
+    private String kickMessage;
+    private boolean preventJoin;
+    
+    // Temporary ban tracking
+    private Map<UUID, Long> tempBannedPlayers; // UUID -> ban end time
+    
+    // API
+    private LifestealAPI api;
+    private AliasManager aliasManager;
+    private LanguageManager languageManager;
+    
+    // Messages
+    private String heartStolenMessage;
+    private String victimHeartStolenMessage;
+    private String cannotLoseHeartMessage;
 
     @Override
     public void onEnable() {
         saveDefaultConfig();
-        loadConfig();
         
+        // Initialize maps first
         playerHearts = new HashMap<>();
         playerMaxLimits = new HashMap<>();
+        tempBannedPlayers = new HashMap<>();
         heartItemManager = new HeartItemManager(this);
+        api = new LifestealAPI(this);
+        aliasManager = new AliasManager(this);
+        languageManager = new LanguageManager(this);
         
-        getLogger().info("Initialized with max hearts: " + (useHalfHearts ? maxHearts : maxHearts/2) + ", min hearts: " + (useHalfHearts ? minHearts : minHearts/2));
+        // Now load config (which will call loadPlayerData)
+        loadConfig();
+        
+        getLogger().info("Initialized with max hearts: " + maxHearts + ", min hearts: " + minHearts);
+        
+        // Always register commands, but only enable functionality if plugin is enabled
+        registerCommands();
         
         if (pluginEnabled) {
             getServer().getPluginManager().registerEvents(this, this);
             getServer().getPluginManager().registerEvents(new HeartItemListener(this), this);
-            registerCommands();
             getLogger().info("Lifesteal Deluxe is ENABLED and ready to use!");
         } else {
-            getLogger().info("Lifesteal Deluxe is DISABLED - no functionality will work until enabled in config!");
+            getLogger().info("Lifesteal Deluxe is DISABLED - commands will work but no functionality will work until enabled in config!");
         }
         
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
@@ -68,6 +101,88 @@ public final class LSD extends JavaPlugin implements Listener {
         
         getLogger().info("Lifesteal Deluxe has been enabled!");
     }
+    
+    // Temporary ban management methods
+    public void tempBanPlayer(UUID playerUUID, String duration) {
+        long banEndTime = System.currentTimeMillis() + parseDurationToMillis(duration);
+        tempBannedPlayers.put(playerUUID, banEndTime);
+        getLogger().info("Player " + playerUUID + " temporarily banned for " + duration);
+    }
+    
+    public boolean isPlayerTempBanned(UUID playerUUID) {
+        if (!tempBannedPlayers.containsKey(playerUUID)) {
+            return false;
+        }
+        
+        long banEndTime = tempBannedPlayers.get(playerUUID);
+        if (System.currentTimeMillis() >= banEndTime) {
+            // Ban expired, remove it
+            tempBannedPlayers.remove(playerUUID);
+            return false;
+        }
+        
+        return true;
+    }
+    
+    public long getRemainingBanTime(UUID playerUUID) {
+        if (!tempBannedPlayers.containsKey(playerUUID)) {
+            return 0;
+        }
+        
+        long banEndTime = tempBannedPlayers.get(playerUUID);
+        long remaining = banEndTime - System.currentTimeMillis();
+        return Math.max(0, remaining);
+    }
+    
+    public String formatRemainingTime(long millis) {
+        if (millis <= 0) return "0 seconds";
+        
+        long seconds = millis / 1000;
+        long minutes = seconds / 60;
+        long hours = minutes / 60;
+        long days = hours / 24;
+        
+        if (days > 0) {
+            return days + " day(s), " + (hours % 24) + " hour(s)";
+        } else if (hours > 0) {
+            return hours + " hour(s), " + (minutes % 60) + " minute(s)";
+        } else if (minutes > 0) {
+            return minutes + " minute(s), " + (seconds % 60) + " second(s)";
+        } else {
+            return seconds + " second(s)";
+        }
+    }
+    
+    public void unbanPlayer(UUID playerUUID) {
+        tempBannedPlayers.remove(playerUUID);
+        getLogger().info("Player " + playerUUID + " manually unbanned from lifesteal server");
+    }
+    
+    private long parseDurationToMillis(String duration) {
+        try {
+            if (duration.endsWith("s")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 1000L;
+            } else if (duration.endsWith("m")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 60000L;
+            } else if (duration.endsWith("h")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 3600000L;
+            } else if (duration.endsWith("d")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 86400000L;
+            } else if (duration.endsWith("w")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 604800000L;
+            } else if (duration.endsWith("M")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 2592000000L;
+            } else if (duration.endsWith("y")) {
+                return Long.parseLong(duration.substring(0, duration.length() - 1)) * 31536000000L;
+            } else {
+                // Default to seconds
+                return Long.parseLong(duration) * 1000L;
+            }
+        } catch (NumberFormatException e) {
+            getLogger().warning("Invalid ban duration format: " + duration + ". Using 1 day as default.");
+            return 86400000L; // 1 day default
+        }
+    }
 
     @Override
     public void onDisable() {
@@ -76,58 +191,169 @@ public final class LSD extends JavaPlugin implements Listener {
     }
 
     private void registerCommands() {
+        // Check if commands exist before registering them
+        if (getCommand("lifesteal") != null) {
         getCommand("lifesteal").setExecutor(new LifestealCommand(this));
+            getLogger().info("Registered command: lifesteal");
+        } else {
+            getLogger().warning("Command 'lifesteal' not found in plugin.yml!");
+        }
+        if (getCommand("hearts") != null) {
         getCommand("hearts").setExecutor(new HeartsCommand(this));
+            getLogger().info("Registered command: hearts");
+        } else {
+            getLogger().warning("Command 'hearts' not found in plugin.yml!");
+        }
+        if (getCommand("withdraw") != null) {
         getCommand("withdraw").setExecutor(new WithdrawCommand(this));
-        getCommand("deposit").setExecutor(new DepositCommand(this));
+            getLogger().info("Registered command: withdraw");
+        } else {
+            getLogger().warning("Command 'withdraw' not found in plugin.yml!");
+        }
+        if (getCommand("sethearts") != null) {
         getCommand("sethearts").setExecutor(new SetHeartsCommand(this));
+            getLogger().info("Registered command: sethearts");
+        } else {
+            getLogger().warning("Command 'sethearts' not found in plugin.yml!");
+        }
+        if (getCommand("addhearts") != null) {
         getCommand("addhearts").setExecutor(new AddHeartsCommand(this));
+            getLogger().info("Registered command: addhearts");
+        } else {
+            getLogger().warning("Command 'addhearts' not found in plugin.yml!");
+        }
+        if (getCommand("removehearts") != null) {
         getCommand("removehearts").setExecutor(new RemoveHeartsCommand(this));
+            getLogger().info("Registered command: removehearts");
+        } else {
+            getLogger().warning("Command 'removehearts' not found in plugin.yml!");
+        }
+        if (getCommand("payhearts") != null) {
         getCommand("payhearts").setExecutor(new PayHeartsCommand(this));
+            getLogger().info("Registered command: payhearts");
+        } else {
+            getLogger().warning("Command 'payhearts' not found in plugin.yml!");
+        }
     }
 
     private void loadConfig() {
         reloadConfig();
         config = getConfig();
         
-        maxHearts = config.getInt("max-hearts", 20) * 2;
-        minHearts = config.getInt("min-hearts", 1) * 2;
+        // Remove half-heart system completely - hearts are now full hearts
+        maxHearts = config.getInt("max-hearts", 20);
+        minHearts = config.getInt("min-hearts", 1);
         loseHeartOnDeath = config.getBoolean("lose-heart-on-death", true);
         gainHeartOnKill = config.getBoolean("gain-heart-on-kill", true);
-        dropHeartOnDeath = config.getBoolean("drop-heart-on-death", true);
+        dropHeartOnDeath = config.getBoolean("drop-heart-on-death", false); // Changed to false by default
         heartDropChance = config.getDouble("heart-drop-chance", 0.1);
-        customHeartName = config.getString("custom-heart-name", "§c§l❤ Extra Heart");
-        useHalfHearts = config.getBoolean("use-half-hearts", false);
-        dropToFloor = config.getBoolean("drop-to-floor", true);
+        customHeartName = config.getString("custom-heart-name", "&c&l❤ Extra Heart");
+        dropToFloor = config.getBoolean("drop-to-floor", false); // Changed to false by default
         pluginEnabled = config.getBoolean("plugin-enabled", true);
         
+        // Convert color codes from & to §
         customHeartLore = config.getStringList("custom-heart-lore");
         if (customHeartLore.isEmpty()) {
-            customHeartLore = List.of("§7Right-click to consume", "§7Gives you +1 heart");
+            customHeartLore = List.of("&7Right-click to consume", "&7Gives you +1 heart");
         }
+        
+        // Convert & to § in lore
+        customHeartLore = customHeartLore.stream()
+            .map(line -> line.replace("&", "§"))
+            .collect(java.util.stream.Collectors.toList());
+        
+        // Convert & to § in heart name
+        customHeartName = customHeartName.replace("&", "§");
+        
+        // Load ban system configuration (LIFESTEAL SERVER ONLY)
+        banSystemEnabled = config.getBoolean("ban-system.enabled", true);
+        banDuration = config.getString("ban-system.ban-duration", "1d");
+        preventJoin = config.getBoolean("ban-system.prevent-join", true);
+        
+        // Load ban messages from language manager
+        banMessage = languageManager.getMessage("ban-message");
+        warningMessage = languageManager.getMessage("warning-message");
+        kickMessage = languageManager.getMessage("kick-message");
+        
+        // Load messages from language manager
+        heartStolenMessage = languageManager.getMessage("heart-stolen");
+        victimHeartStolenMessage = languageManager.getMessage("victim-heart-stolen");
+        cannotLoseHeartMessage = languageManager.getMessage("cannot-lose-heart");
         
         loadPlayerData();
     }
 
     private void loadPlayerData() {
-        if (config.contains("players") && config.getConfigurationSection("players") != null) {
-            for (String uuidString : config.getConfigurationSection("players").getKeys(false)) {
+        File dataFile = new File(getDataFolder(), "data.yml");
+        if (!dataFile.exists()) {
+            return;
+        }
+        
+        FileConfiguration dataConfig = YamlConfiguration.loadConfiguration(dataFile);
+        if (dataConfig.contains("players") && dataConfig.getConfigurationSection("players") != null) {
+            for (String uuidString : dataConfig.getConfigurationSection("players").getKeys(false)) {
                 try {
                     UUID uuid = UUID.fromString(uuidString);
-                    int hearts = config.getInt("players." + uuidString + ".hearts", 20);
+                    int hearts = dataConfig.getInt("players." + uuidString + ".hearts", 10); // 10 hearts = 20 health points
                     playerHearts.put(uuid, hearts);
                 } catch (IllegalArgumentException e) {
-                    getLogger().warning("Invalid UUID in config: " + uuidString);
+                    getLogger().warning("Invalid UUID in data: " + uuidString);
+                }
+            }
+        }
+        
+        if (dataConfig.contains("maxLimits") && dataConfig.getConfigurationSection("maxLimits") != null) {
+            for (String uuidString : dataConfig.getConfigurationSection("maxLimits").getKeys(false)) {
+                try {
+                    UUID uuid = UUID.fromString(uuidString);
+                    int limit = dataConfig.getInt("maxLimits." + uuidString, maxHearts);
+                    playerMaxLimits.put(uuid, limit);
+                } catch (IllegalArgumentException e) {
+                    getLogger().warning("Invalid UUID in maxLimits: " + uuidString);
+                }
+            }
+        }
+        
+        // Load temporary bans
+        if (dataConfig.contains("tempBans")) {
+            for (String uuidString : dataConfig.getConfigurationSection("tempBans").getKeys(false)) {
+                try {
+                    UUID uuid = UUID.fromString(uuidString);
+                    long banEndTime = dataConfig.getLong("tempBans." + uuidString);
+                    
+                    // Only load if ban hasn't expired
+                    if (System.currentTimeMillis() < banEndTime) {
+                        tempBannedPlayers.put(uuid, banEndTime);
+                    }
+                } catch (IllegalArgumentException e) {
+                    getLogger().warning("Invalid UUID in tempBans: " + uuidString);
                 }
             }
         }
     }
 
     private void savePlayerData() {
+        File dataFile = new File(getDataFolder(), "data.yml");
+        FileConfiguration dataConfig = new YamlConfiguration();
+        
         for (Map.Entry<UUID, Integer> entry : playerHearts.entrySet()) {
-            config.set("players." + entry.getKey().toString() + ".hearts", entry.getValue());
+            dataConfig.set("players." + entry.getKey().toString() + ".hearts", entry.getValue());
         }
-        saveConfig();
+        
+        for (Map.Entry<UUID, Integer> entry : playerMaxLimits.entrySet()) {
+            dataConfig.set("maxLimits." + entry.getKey().toString(), entry.getValue());
+        }
+        
+        // Save temporary bans
+        for (Map.Entry<UUID, Long> entry : tempBannedPlayers.entrySet()) {
+            dataConfig.set("tempBans." + entry.getKey().toString(), entry.getValue());
+        }
+        
+        try {
+            dataConfig.save(dataFile);
+        } catch (IOException e) {
+            getLogger().severe("Could not save player data: " + e.getMessage());
+        }
     }
 
     @EventHandler
@@ -136,8 +362,29 @@ public final class LSD extends JavaPlugin implements Listener {
         
         Player player = event.getPlayer();
         if (!playerHearts.containsKey(player.getUniqueId())) {
-            playerHearts.put(player.getUniqueId(), 20);
+            playerHearts.put(player.getUniqueId(), 10); // 10 hearts = 20 health points (default)
         }
+        
+        // Check if player is temporarily banned from the lifesteal server
+        if (banSystemEnabled && isPlayerTempBanned(player.getUniqueId())) {
+            long remainingTime = getRemainingBanTime(player.getUniqueId());
+            String formattedTime = formatRemainingTime(remainingTime);
+            
+            String kickMsg = banMessage + "\n§cRemaining time: §e" + formattedTime;
+            player.kickPlayer(kickMsg);
+            
+            getLogger().info("Player " + player.getName() + " was kicked from joining due to temporary ban. Remaining: " + formattedTime);
+            return;
+        }
+        
+        // Check if player should be kicked for having minimum hearts (if prevent-join is enabled)
+        if (banSystemEnabled && preventJoin && getHearts(player) <= minHearts) {
+            // Kick them back off the server
+            player.kickPlayer(kickMessage);
+            getLogger().info("Player " + player.getName() + " was kicked from joining due to having minimum hearts");
+            return;
+        }
+        
         updatePlayerHealth(player);
     }
 
@@ -148,19 +395,56 @@ public final class LSD extends JavaPlugin implements Listener {
         Player victim = event.getEntity();
         Player killer = victim.getKiller();
         
-        if (killer != null && gainHeartOnKill) {
-            addHearts(killer, 1);
-            killer.sendMessage("§a+1 Heart! You now have " + getHearts(killer) + " hearts.");
-        }
         
-        if (loseHeartOnDeath) {
+        if (killer != null && gainHeartOnKill) {
+            // Killer gets the victim's heart instead of just +1
+            int victimHearts = getHearts(victim);
+            if (victimHearts > minHearts) {
+                // Take 1 heart from victim and give it to killer
+                removeHearts(victim, 1);
+            addHearts(killer, 1);
+                
+                // Send messages with placeholders replaced
+                String killerMsg = heartStolenMessage
+                    .replace("{victim}", victim.getName())
+                    .replace("{hearts}", String.valueOf(getHearts(killer)));
+                String victimMsg = victimHeartStolenMessage
+                    .replace("{killer}", killer.getName())
+                    .replace("{hearts}", String.valueOf(getHearts(victim)));
+                
+                killer.sendMessage(killerMsg);
+                victim.sendMessage(victimMsg);
+            } else {
+                // Victim is at minimum hearts, can't lose more
+                killer.sendMessage(cannotLoseHeartMessage);
+            }
+        } else if (loseHeartOnDeath) {
+            // Only remove heart on death if not killed by another player
             removeHearts(victim, 1);
             victim.sendMessage("§c-1 Heart! You now have " + getHearts(victim) + " hearts.");
         }
         
-        if (dropHeartOnDeath && Math.random() < heartDropChance) {
-            dropHeartItem(victim, killer);
+        // Check if player should be banned
+        if (banSystemEnabled && getHearts(victim) <= minHearts) {
+            victim.sendMessage(warningMessage);
+            
+            // Temporarily ban the player from the lifesteal server
+            if (banSystemEnabled) {
+                // Add them to temporary ban list
+                tempBanPlayer(victim.getUniqueId(), banDuration);
+                
+                // Kick them with the ban message
+                victim.kickPlayer(banMessage);
+                
+                // Log the action
+                getLogger().info("Player " + victim.getName() + " was temporarily banned from the lifesteal server for " + banDuration + " for reaching minimum hearts");
+            }
         }
+        
+        // Remove heart dropping to floor - hearts are now stolen directly
+        // if (dropHeartOnDeath && Math.random() < heartDropChance) {
+        //     dropHeartItem(victim, killer);
+        // }
         
         updatePlayerHealth(victim);
         if (killer != null) {
@@ -195,10 +479,10 @@ public final class LSD extends JavaPlugin implements Listener {
         }
         
         UUID uuid = player.getUniqueId();
-        int currentHearts = playerHearts.getOrDefault(uuid, 20);
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
+        int currentHearts = playerHearts.getOrDefault(uuid, 10); // 10 hearts = 20 health points
+        // Removed half-heart system - amount is now full hearts
         
-        int newHearts = Math.min(currentHearts + amountInHearts, maxHearts);
+        int newHearts = Math.min(currentHearts + amount, maxHearts);
         playerHearts.put(uuid, newHearts);
         updatePlayerHealth(player);
         savePlayerData();
@@ -211,10 +495,18 @@ public final class LSD extends JavaPlugin implements Listener {
         }
         
         UUID uuid = player.getUniqueId();
-        int currentHearts = playerHearts.getOrDefault(uuid, 20);
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
+        int currentHearts = playerHearts.getOrDefault(uuid, 10); // 10 hearts = 20 health points
+        // Removed half-heart system - amount is now full hearts
         
-        int newHearts = Math.max(currentHearts - amountInHearts, minHearts);
+        int newHearts = Math.max(currentHearts - amount, minHearts);
+        
+        // Debug logging (only when debug mode is enabled)
+        if (config.getBoolean("advanced.debug-mode", false)) {
+            getLogger().info("DEBUG: removeHearts called for " + player.getName() + 
+                " - Current: " + currentHearts + ", Amount: " + amount + 
+                ", New: " + newHearts + ", Min: " + minHearts);
+        }
+        
         playerHearts.put(uuid, newHearts);
         updatePlayerHealth(player);
         savePlayerData();
@@ -222,38 +514,50 @@ public final class LSD extends JavaPlugin implements Listener {
 
     public void setHearts(Player player, int amount) {
         UUID uuid = player.getUniqueId();
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
-        int clampedHearts = Math.max(minHearts, Math.min(amountInHearts, maxHearts));
+        // Removed half-heart system - amount is now full hearts
+        int clampedHearts = Math.max(minHearts, Math.min(amount, maxHearts));
         playerHearts.put(uuid, clampedHearts);
         updatePlayerHealth(player);
         savePlayerData();
     }
 
     public int getHearts(Player player) {
-        int hearts = playerHearts.getOrDefault(player.getUniqueId(), 20);
-        return useHalfHearts ? hearts : hearts / 2;
+        int hearts = playerHearts.getOrDefault(player.getUniqueId(), 10); // 10 hearts = 20 health points
+        return hearts; // Removed half-heart system
     }
 
-    private void updatePlayerHealth(Player player) {
+    public void updatePlayerHealth(Player player) {
         int hearts = getHearts(player);
         try {
-            player.setMaxHealth(hearts);
+            // Convert hearts to health (1 heart = 2 health points in Minecraft)
+            player.setMaxHealth(hearts * 2);
+            
+            // Debug logging (only when debug mode is enabled)
+            if (config.getBoolean("advanced.debug-mode", false)) {
+                getLogger().info("DEBUG: updatePlayerHealth called for " + player.getName() + 
+                    " - Hearts: " + hearts + ", Health: " + (hearts * 2));
+            }
         } catch (Exception e) {
             getLogger().warning("Failed to update player health for " + player.getName() + ": " + e.getMessage());
         }
     }
 
     public void reloadPlugin() {
+        // Reload configuration
         loadConfig();
-        getLogger().info("Configuration reloaded!");
+        
+        // Re-register commands to ensure they work properly
+        registerCommands();
+        
+        getLogger().info("Configuration and commands reloaded!");
     }
 
     public int getMaxHearts() {
-        return useHalfHearts ? maxHearts : maxHearts / 2;
+        return maxHearts; // Removed half-heart system
     }
 
     public int getMinHearts() {
-        return useHalfHearts ? minHearts : minHearts / 2;
+        return minHearts; // Removed half-heart system
     }
 
     public boolean isLoseHeartOnDeath() {
@@ -278,57 +582,81 @@ public final class LSD extends JavaPlugin implements Listener {
 
     public void addOfflineHearts(OfflinePlayer player, int amount) {
         UUID uuid = player.getUniqueId();
-        int currentHearts = playerHearts.getOrDefault(uuid, 20);
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
-        int newHearts = Math.min(currentHearts + amountInHearts, getMaxHeartsForPlayer(player));
+        int currentHearts = playerHearts.getOrDefault(uuid, 10); // 10 hearts = 20 health points
+        // Removed half-heart system - amount is now full hearts
+        int newHearts = Math.min(currentHearts + amount, getMaxHeartsForPlayer(player));
         playerHearts.put(uuid, newHearts);
+        
+        // Update health if player is online
+        if (player.isOnline()) {
+            updatePlayerHealth((Player) player);
+        }
+        
         savePlayerData();
     }
 
     public int getHearts(OfflinePlayer player) {
-        int hearts = playerHearts.getOrDefault(player.getUniqueId(), 20);
-        return useHalfHearts ? hearts : hearts / 2;
+        int hearts = playerHearts.getOrDefault(player.getUniqueId(), 10); // 10 hearts = 20 health points
+        return hearts; // Removed half-heart system
     }
 
     public void setHearts(OfflinePlayer player, int amount) {
         UUID uuid = player.getUniqueId();
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
-        int clampedHearts = Math.max(minHearts, Math.min(amountInHearts, getMaxHeartsForPlayer(player)));
+        // Removed half-heart system - amount is now full hearts
+        int clampedHearts = Math.max(minHearts, Math.min(amount, getMaxHeartsForPlayer(player)));
         playerHearts.put(uuid, clampedHearts);
+        
+        // Update health if player is online
+        if (player.isOnline()) {
+            updatePlayerHealth((Player) player);
+        }
+        
         savePlayerData();
     }
 
     public void addHearts(OfflinePlayer player, int amount) {
         UUID uuid = player.getUniqueId();
-        int currentHearts = playerHearts.getOrDefault(uuid, 20);
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
-        int newHearts = Math.min(currentHearts + amountInHearts, getMaxHeartsForPlayer(player));
+        int currentHearts = playerHearts.getOrDefault(uuid, 10); // 10 hearts = 20 health points
+        // Removed half-heart system - amount is now full hearts
+        int newHearts = Math.min(currentHearts + amount, getMaxHeartsForPlayer(player));
         playerHearts.put(uuid, newHearts);
+        
+        // Update health if player is online
+        if (player.isOnline()) {
+            updatePlayerHealth((Player) player);
+        }
+        
         savePlayerData();
     }
 
     public void removeHearts(OfflinePlayer player, int amount) {
         UUID uuid = player.getUniqueId();
-        int currentHearts = playerHearts.getOrDefault(uuid, 20);
-        int amountInHearts = useHalfHearts ? amount : amount * 2;
-        int newHearts = Math.max(currentHearts - amountInHearts, minHearts);
+        int currentHearts = playerHearts.getOrDefault(uuid, 10); // 10 hearts = 20 health points
+        // Removed half-heart system - amount is now full hearts
+        int newHearts = Math.max(currentHearts - amount, minHearts);
         playerHearts.put(uuid, newHearts);
+        
+        // Update health if player is online
+        if (player.isOnline()) {
+            updatePlayerHealth((Player) player);
+        }
+        
         savePlayerData();
     }
 
     public int getMaxHeartsForPlayer(OfflinePlayer player) {
         int hearts = playerMaxLimits.getOrDefault(player.getUniqueId(), maxHearts);
-        return useHalfHearts ? hearts : hearts / 2;
+        return hearts; // Removed half-heart system
     }
 
     public int getMaxHeartsForPlayer(Player player) {
         int hearts = playerMaxLimits.getOrDefault(player.getUniqueId(), maxHearts);
-        return useHalfHearts ? hearts : hearts / 2;
+        return hearts; // Removed half-heart system
     }
 
     public void setPlayerMaxLimit(OfflinePlayer player, int limit) {
-        int limitInHearts = useHalfHearts ? limit : limit * 2;
-        playerMaxLimits.put(player.getUniqueId(), limitInHearts);
+        // Removed half-heart system - limit is now full hearts
+        playerMaxLimits.put(player.getUniqueId(), limit);
     }
 
     public String getCustomHeartName() {
@@ -351,9 +679,7 @@ public final class LSD extends JavaPlugin implements Listener {
         saveConfig();
     }
 
-    public boolean isUseHalfHearts() {
-        return useHalfHearts;
-    }
+    // Removed half-heart system - this method is no longer needed
 
     public boolean isDropToFloor() {
         return dropToFloor;
@@ -402,4 +728,33 @@ public final class LSD extends JavaPlugin implements Listener {
     public int getPlayerMaxLimitsSize() {
         return playerMaxLimits.size();
     }
+
+    public Map<UUID, Integer> getPlayerHearts() {
+        return playerHearts;
+    }
+    
+    /**
+     * Get the API instance for external plugins
+     * @return LifestealAPI instance
+     */
+    public LifestealAPI getAPI() {
+        return api;
+    }
+    
+    /**
+     * Get the alias manager
+     * @return AliasManager instance
+     */
+    public AliasManager getAliasManager() {
+        return aliasManager;
+    }
+    
+    /**
+     * Get the language manager
+     * @return LanguageManager instance
+     */
+    public LanguageManager getLanguageManager() {
+        return languageManager;
+    }
+    
 }

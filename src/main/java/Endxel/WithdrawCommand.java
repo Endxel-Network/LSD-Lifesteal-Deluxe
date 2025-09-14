@@ -19,6 +19,12 @@ public class WithdrawCommand implements CommandExecutor, TabCompleter {
 
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        // Check if plugin is enabled
+        if (!plugin.isPluginEnabled()) {
+            sender.sendMessage("§cLifesteal Deluxe is currently disabled!");
+            return true;
+        }
+        
         if (!(sender instanceof Player)) {
             sender.sendMessage("§cThis command can only be used by players!");
             return true;
@@ -49,8 +55,16 @@ public class WithdrawCommand implements CommandExecutor, TabCompleter {
                 return true;
             }
 
+            int heartsBefore = plugin.getHearts(player);
             plugin.removeHearts(player, amount);
-            player.sendMessage("§aWithdrew " + amount + " hearts! You now have " + plugin.getHearts(player) + " hearts.");
+            int heartsAfter = plugin.getHearts(player);
+            
+            player.sendMessage("§aWithdrew " + amount + " hearts! You now have " + heartsAfter + " hearts.");
+            
+            // Debug message (only when debug mode is enabled)
+            if (plugin.getConfig().getBoolean("advanced.debug-mode", false)) {
+                player.sendMessage("§7Debug: Hearts before: " + heartsBefore + ", Hearts after: " + heartsAfter + ", Amount removed: " + (heartsBefore - heartsAfter));
+            }
             
             plugin.getHeartItemManager().giveHeartItem(player, amount);
             
